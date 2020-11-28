@@ -3,7 +3,7 @@ extern crate vst;
 use std::env;
 use std::path::Path;
 use std::process;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use vst::host::{Host, PluginLoader};
 use vst::plugin::Plugin;
@@ -27,7 +27,7 @@ fn main() {
     let path = Path::new(&args[1]);
 
     // Create the host
-    let host = Arc::new(Mutex::new(SampleHost));
+    let host = Arc::new(parking_lot::Mutex::new(SampleHost));
 
     println!("Loading {}...", path.to_str().unwrap());
 

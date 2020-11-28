@@ -9,7 +9,7 @@ use std::ffi::CString;
 use std::mem::MaybeUninit;
 use std::os::raw::c_void;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::{fmt, ptr, slice};
 
 use api::consts::*;
@@ -275,7 +275,7 @@ impl Error for PluginLoadError {}
 pub struct PluginLoader<T: Host> {
     main: PluginMain,
     lib: Arc<Library>,
-    host: Arc<Mutex<T>>,
+    host: Arc<parking_lot::Mutex<T>>,
 }
 
 /// An instance of an externally loaded VST plugin.
@@ -402,7 +402,7 @@ impl<T: Host> PluginLoader<T> {
     ///   * Plugin: `/Library/Audio/Plug-Ins/VST/iZotope Ozone 5.vst`
     ///   * Possible full path:
     ///     `/Library/Audio/Plug-Ins/VST/iZotope Ozone 5.vst/Contents/MacOS/PluginHooksVST`
-    pub fn load(path: &Path, host: Arc<Mutex<T>>) -> Result<PluginLoader<T>, PluginLoadError> {
+    pub fn load(path: &Path, host: Arc<parking_lot::Mutex<T>>) -> Result<PluginLoader<T>, PluginLoadError> {
         // Try loading the library at the given path
         let lib = match Library::new(path) {
             Ok(l) => l,
@@ -896,19 +896,19 @@ fn callback_wrapper<T: Host>(
         // If the effect pointer is not null and the host pointer is not null, the plugin has
         // already been initialized
         if !effect.is_null() && (*effect).reserved1 != 0 {
-            let reserved = (*effect).reserved1 as *const Arc<Mutex<T>>;
+            let reserved = (*effect).reserved1 as *const Arc<parking_lot::Mutex<T>>;
             let host = &*reserved;
 
-            let host = &mut *host.lock().unwrap();
+            let host = &mut *host.lock();
 
             interfaces::host_dispatch(host, effect, opcode, index, value, ptr, opt)
         // In this case, the plugin is still undergoing initialization and so `LOAD_POINTER` is
         // dereferenced
         } else {
             // Used only during the plugin initialization
-            let host = LOAD_POINTER as *const Arc<Mutex<T>>;
+            let host = LOAD_POINTER as *const Arc<parking_lot::Mutex<T>>;
             let host = &*host;
-            let host = &mut *host.lock().unwrap();
+            let host = &mut *host.lock();
 
             interfaces::host_dispatch(host, effect, opcode, index, value, ptr, opt)
         }

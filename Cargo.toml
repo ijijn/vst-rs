@@ -1,70 +1,71 @@
 [package]
+authors = [
+  "Marko Mijalkovic <marko.mijalkovic97@gmail.com>",
+  "Boscop",
+  "Alex Zywicki <alexander.zywicki@gmail.com>",
+  "doomy <alexander@resamplr.com>",
+  "Ms2ger",
+  "Rob Saunders",
+  "David Lu",
+  "Aske Simon Christensen",
+  "kykc",
+  "Jordan Earls",
+  "xnor104",
+  "Nathaniel Theis",
+  "Colin Wallace",
+  "Henrik Nordvik",
+  "Charles Saracco",
+  "Frederik Halkjær",
+]
 name = "vst"
 version = "0.2.1"
-authors = [
-	"Marko Mijalkovic <marko.mijalkovic97@gmail.com>",
-	"Boscop",
-	"Alex Zywicki <alexander.zywicki@gmail.com>",
-	"doomy <alexander@resamplr.com>",
-	"Ms2ger",
-	"Rob Saunders",
-	"David Lu",
-	"Aske Simon Christensen",
-	"kykc",
-	"Jordan Earls",
-	"xnor104",
-	"Nathaniel Theis",
-	"Colin Wallace",
-	"Henrik Nordvik",
-	"Charles Saracco",
-	"Frederik Halkjær" ]
 
 description = "VST 2.4 API implementation in rust. Create plugins or hosts."
 
 readme = "README.md"
 repository = "https://github.com/rustaudio/vst-rs"
 
-license = "MIT"
 keywords = ["vst", "vst2", "plugin"]
+license = "MIT"
 
 autoexamples = false
 
 [dependencies]
+bitflags = "1"
+libc = "0.2"
+libloading = "0.6.5"
 log = "0.4"
 num-traits = "0.2"
-libc = "0.2"
-bitflags = "1"
-libloading = "0.5"
+parking_lot = "0.11.1"
 
 [dev-dependencies]
-time = "0.1"
 rand = "0.7"
+time = "0.2.23"
 
 [[example]]
+crate-type = ["cdylib"]
 name = "dimension_expander"
-crate-type = ["cdylib"]
 
 [[example]]
-name = "simple_host"
 crate-type = ["bin"]
+name = "simple_host"
 
 [[example]]
+crate-type = ["cdylib"]
 name = "sine_synth"
-crate-type = ["cdylib"]
 
 [[example]]
+crate-type = ["cdylib"]
 name = "fwd_midi"
-crate-type = ["cdylib"]
 
 [[example]]
+crate-type = ["cdylib"]
 name = "gain_effect"
-crate-type = ["cdylib"]
 
 [[example]]
+crate-type = ["cdylib"]
 name = "transfer_and_smooth"
-crate-type = ["cdylib"]
 
 [[example]]
-name = "ladder_filter"
 crate-type = ["cdylib"]
-
+name = "ladder_filter"

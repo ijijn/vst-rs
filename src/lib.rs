@@ -69,9 +69,10 @@
 //! ```no_run
 //! extern crate vst;
 //!
-//! use std::sync::{Arc, Mutex};
+//! use std::sync::Arc;
 //! use std::path::Path;
 //!
+//! use parking_lot::Mutex;
 //! use vst::host::{Host, PluginLoader};
 //! use vst::plugin::Plugin;
 //!
