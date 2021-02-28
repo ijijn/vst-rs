@@ -1,7 +1,10 @@
 //! Host specific structures.
 
+extern crate parking_lot;
+
 use num_traits::Float;
 
+use self::parking_lot::Mutex;
 use libloading::Library;
 use std::cell::UnsafeCell;
 use std::error::Error;
@@ -275,7 +278,7 @@ impl Error for PluginLoadError {}
 pub struct PluginLoader<T: Host> {
     main: PluginMain,
     lib: Arc<Library>,
-    host: Arc<parking_lot::Mutex<T>>,
+    host: Arc<Mutex<T>>,
 }
 
 /// An instance of an externally loaded VST plugin.
@@ -373,8 +376,10 @@ impl<T: Host> PluginLoader<T> {
     /// # Example
     ///
     /// ```no_run
+    /// # extern crate parking_lot;
     /// # use std::path::Path;
-    /// # use std::sync::{Arc, Mutex};
+    /// # use parking_lot::Mutex;
+    /// # use std::sync::Arc;
     /// # use vst::host::{Host, PluginLoader};
     /// # let path = Path::new(".");
     /// # struct MyHost;
@@ -386,7 +391,7 @@ impl<T: Host> PluginLoader<T> {
     /// // ...
     /// let host = Arc::new(Mutex::new(MyHost::new()));
     ///
-    /// let mut plugin = PluginLoader::load(path, host.clone()).unwrap();
+    /// let mut plugin = PluginLoader::load(path, Arc::clone(&host)).unwrap();
     ///
     /// let instance = plugin.instance().unwrap();
     /// // ...
@@ -402,7 +407,7 @@ impl<T: Host> PluginLoader<T> {
     ///   * Plugin: `/Library/Audio/Plug-Ins/VST/iZotope Ozone 5.vst`
     ///   * Possible full path:
     ///     `/Library/Audio/Plug-Ins/VST/iZotope Ozone 5.vst/Contents/MacOS/PluginHooksVST`
-    pub fn load(path: &Path, host: Arc<parking_lot::Mutex<T>>) -> Result<PluginLoader<T>, PluginLoadError> {
+    pub fn load(path: &Path, host: Arc<Mutex<T>>) -> Result<PluginLoader<T>, PluginLoadError> {
         // Try loading the library at the given path
         let lib = match Library::new(path) {
             Ok(l) => l,
@@ -896,7 +901,7 @@ fn callback_wrapper<T: Host>(
         // If the effect pointer is not null and the host pointer is not null, the plugin has
         // already been initialized
         if !effect.is_null() && (*effect).reserved1 != 0 {
-            let reserved = (*effect).reserved1 as *const Arc<parking_lot::Mutex<T>>;
+            let reserved = (*effect).reserved1 as *const Arc<Mutex<T>>;
             let host = &*reserved;
 
             let host = &mut *host.lock();
@@ -906,7 +911,7 @@ fn callback_wrapper<T: Host>(
         // dereferenced
         } else {
             // Used only during the plugin initialization
-            let host = LOAD_POINTER as *const Arc<parking_lot::Mutex<T>>;
+            let host = LOAD_POINTER as *const Arc<Mutex<T>>;
             let host = &*host;
             let host = &mut *host.lock();
 

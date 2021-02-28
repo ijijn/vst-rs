@@ -67,6 +67,7 @@
 //!
 //! ## Example Host
 //! ```no_run
+//! extern crate parking_lot;
 //! extern crate vst;
 //!
 //! use std::sync::Arc;
