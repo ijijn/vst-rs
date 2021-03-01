@@ -551,6 +551,7 @@ pub struct Event {
 
 /// A midi event.
 #[repr(C)]
+#[derive(Debug)]
 pub struct MidiEvent {
     /// Should be `EventType::Midi`.
     pub event_type: EventType,
